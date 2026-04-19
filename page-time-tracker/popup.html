@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Page Time Tracker</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap');
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      width: 320px;
+      background: #0d0d0d;
+      color: #e8e8e8;
+      font-family: 'IBM Plex Sans', sans-serif;
+      overflow: hidden;
+    }
+
+    .header {
+      padding: 16px 18px 12px;
+      border-bottom: 1px solid #1e1e1e;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      background: #00e676;
+      border-radius: 50%;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(0.8); }
+    }
+
+    .title {
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #aaa;
+    }
+
+    .clear-btn {
+      background: none;
+      border: 1px solid #2a2a2a;
+      color: #666;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 10px;
+      padding: 4px 8px;
+      border-radius: 4px;
+      cursor: pointer;
+      letter-spacing: 0.05em;
+      transition: all 0.15s;
+    }
+
+    .clear-btn:hover {
+      border-color: #ff4444;
+      color: #ff4444;
+    }
+
+    .current-site {
+      padding: 14px 18px;
+      background: #111;
+      border-bottom: 1px solid #1a1a1a;
+    }
+
+    .current-label {
+      font-size: 10px;
+      color: #555;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+      font-family: 'IBM Plex Mono', monospace;
+    }
+
+    .current-host {
+      font-size: 13px;
+      color: #00e676;
+      font-family: 'IBM Plex Mono', monospace;
+      font-weight: 600;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .current-time {
+      font-size: 28px;
+      font-family: 'IBM Plex Mono', monospace;
+      font-weight: 600;
+      color: #fff;
+      letter-spacing: -0.02em;
+      margin-top: 2px;
+    }
+
+    .list-header {
+      padding: 10px 18px 6px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .list-label {
+      font-size: 10px;
+      color: #444;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      font-family: 'IBM Plex Mono', monospace;
+    }
+
+    .list {
+      max-height: 240px;
+      overflow-y: auto;
+      padding: 0 0 8px;
+    }
+
+    .list::-webkit-scrollbar { width: 3px; }
+    .list::-webkit-scrollbar-track { background: transparent; }
+    .list::-webkit-scrollbar-thumb { background: #2a2a2a; border-radius: 2px; }
+
+    .site-row {
+      display: flex;
+      align-items: center;
+      padding: 9px 18px;
+      border-bottom: 1px solid #161616;
+      transition: background 0.1s;
+      position: relative;
+    }
+
+    .site-row:hover { background: #151515; }
+
+    .bar-bg {
+      position: absolute;
+      left: 0; top: 0; bottom: 0;
+      background: #1a2a1a;
+      transition: width 0.4s ease;
+      pointer-events: none;
+    }
+
+    .rank {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 10px;
+      color: #333;
+      width: 18px;
+      flex-shrink: 0;
+      position: relative;
+    }
+
+    .favicon {
+      width: 14px;
+      height: 14px;
+      margin-right: 8px;
+      border-radius: 2px;
+      flex-shrink: 0;
+      position: relative;
+    }
+
+    .site-name {
+      flex: 1;
+      font-size: 12px;
+      color: #ccc;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      position: relative;
+    }
+
+    .site-time {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 12px;
+      color: #888;
+      flex-shrink: 0;
+      margin-left: 8px;
+      position: relative;
+    }
+
+    .site-time.top { color: #00e676; }
+
+    .empty {
+      padding: 28px 18px;
+      text-align: center;
+      color: #333;
+      font-size: 12px;
+      font-family: 'IBM Plex Mono', monospace;
+    }
+
+    .footer {
+      padding: 8px 18px;
+      border-top: 1px solid #1a1a1a;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .total-label { font-size: 10px; color: #444; letter-spacing: 0.05em; }
+    .total-time { font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #666; }
+  </style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-left">
+    <div class="dot"></div>
+    <span class="title">Time Tracker</span>
+  </div>
+  <button class="clear-btn" id="clearBtn">RESET ALL</button>
+</div>
+
+<div class="current-site">
+  <div class="current-label">Currently viewing</div>
+  <div class="current-host" id="currentHost">—</div>
+  <div class="current-time" id="currentTime">00:00:00</div>
+</div>
+
+<div class="list-header">
+  <span class="list-label">All sites today</span>
+</div>
+
+<div class="list" id="siteList">
+  <div class="empty">No data yet. Start browsing!</div>
+</div>
+
+<div class="footer">
+  <span class="total-label">TOTAL TODAY</span>
+  <span class="total-time" id="totalTime">0s</span>
+</div>
+
+<script src="popup.js"></script>
+</body>
+</html>
